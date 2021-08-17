@@ -1,19 +1,18 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" width="25%" />
-    <TodoTask />
+    
     <MainPage />
   </div>
 </template>
 
 <script>
-import TodoTask from "./components/TodoTask";
+
 import MainPage from "./MainPage";
 
 export default {
   name: "App",
   components: {
-    TodoTask,
+    
     MainPage,
   },
 };

@@ -1,11 +1,11 @@
 <template>
   <div class="main">
-    <div v-for="i in column" :key="i.id">
-      <!-- <Column key="{i.id}" id="{i.id}" title="{i.title}" /> -->
-      <Column/>
+    <div v-for="i in columns" :key="i.id">
+      <Column v-bind:id="i.id" v-bind:title="i.title"/>
+      <!-- <Column/> -->
     </div> 
 
-    <button v-if="setAddColumnOpen" @click="setAddColumnOpen = true">
+    <button v-if="!setAddColumnOpen" @click="setAddColumnOpen = true">
       Добавить
     </button>
 
@@ -15,7 +15,7 @@
         <button type="submit">Добавить</button>
       </form>
     </div>
-    )}
+    
   </div>
 </template>
 
@@ -61,6 +61,20 @@ export default {
       ];
       return column;
     },
+    tasks(){
+        const task =[];
+        return task;
+    },
+    comments(){
+        const comment=[];
+        return comment;
+    }
   },
 };
 </script>
+
+<style>
+.main {
+  display: flex;
+}
+</style>

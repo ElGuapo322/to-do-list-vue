@@ -2,24 +2,24 @@
   <div class="column">
     <div class="title">
       {{ title }}
-      <button class="delete-button" id="{props.id}" onClick="{delButton}">
+      <button class="delete-button" id="props.id" onClick="delButton">
         X
       </button>
     </div>
 
-    <button v-if="!setAddButtonOpen">AddButton</button>
+    <button v-if="!setAddButtonOpen" @click="setAddButtonOpen = true">AddButton</button>
 
     <form
+    class="task-form"
       v-else
-      id="{props.id}"
-      @submit.prevent="
-        {
-          submit;
-        }
-      "
+      :id="id"
+      @submit.prevent="submit"
     >
-      <input @change="setName" />
-      <button id="{props.id}">create</button>
+      <input placeholder="Имя задачи" @change="setName" />
+      <input placeholder="Описание задачи" @change="setDescription" />
+      <input placeholder="Исполнитель" @change="setExecutor" />
+      <input placeholder="Срок исполнения" @change="setDate" />
+      <button :id="id" >create</button>
     </form>
   </div>
 </template>
@@ -43,13 +43,36 @@ export default {
     return {
       setAddButtonOpen: false,
       name: "",
+      description:"",
+      executor:"",
+      date:"",
+
     };
   },
   methods: {
     setName(e) {
       this.name = e.target.value;
     },
-    submit() {
+    setDescription(e){
+      this.description = e.target.value;
+    },
+    setExecutor(e){
+        this.executor = e.target.value;
+
+    },
+    setDate(e){
+        this.date = e.target.value;
+
+    },
+    submit(e) {
+        let obj = {
+            name: this.name,
+            description: this.description,
+            executor: this.executor,
+            date: this.date,
+        }
+        console.log(obj, e.target.id)
+        this.setAddButtonOpen = false;
       //
     },
   },
@@ -82,5 +105,9 @@ export default {
   color: white;
   border-radius: 5px;
   cursor: pointer;
+}
+.task-form {
+  display: flex;
+  flex-direction: column;
 }
 </style>
