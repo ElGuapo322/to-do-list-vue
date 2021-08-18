@@ -1,13 +1,13 @@
 <template>
   <div>
-    <div class="task">
+    <div class="task" :id="id">
       <div className="task-title">
         <div>{{ title }}</div>
 
         <button
-          className="delete-button"
-          onClick="{deleteTaskBtn}"
-          id="{props.id}"
+          class="delete-button"
+          @click="deleteTaskBtn"
+          :id="id"
         >
           X
         </button>
@@ -19,20 +19,22 @@
         </div>
 
         <!-- {comments.map((i) => props.id === i.parentId ? ( -->
-      </div>
+        <div v-for="i in showComments" :key="i.id">
+          <div v-if="id===i.parentId">
       <div class="comment">
-        <div>{i.text}</div>
+        <div>{{i.text}}</div>
         <button
-          className="delete-button"
-          onClick="{deleteCommentBtn}"
-          id="{i.id}"
+          class="delete-button"
+          @click="deleteCommentBtn"
+          :id="i.id"
         >
           X
         </button>
       </div>
-
+          </div>
+        </div>
       <form v-if="commentButtonOpen" @submit.prevent="submit">
-        <input autoFocus @change="nameComment" />
+        <input v-focus @change="nameComment" />
         <button type="submit">add comment</button>
       </form>
 
@@ -41,12 +43,15 @@
       </button>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
 
 
 import { v4 as uuidv4} from "uuid";
+import {mapMutations} from "vuex"
+
 export default {
   name: "TodoTask",
   
@@ -71,43 +76,66 @@ export default {
       default: "00:00",
       required: true,
     },
+    id:{
+      type: String,
+      
+      required: true,
+    }
   },
   data() {
     return {
       commentButtonOpen: false,
-      commentText: "text",
+      commentText: "",
     };
   },
   computed: {
-    columns() {
-      const columns = [
-        {
-          id: uuidv4(),
-          title: "Сделать",
-        },
-        {
-          id: uuidv4(),
-          title: "В работе",
-        },
-        {
-          id: uuidv4(),
-          title: "Сделано",
-        },
-      ];
-      return columns;
-    },
+    
+    showComments(){
+      return this.$store.getters.showComments
+    }
   },
   methods: {
+    ...mapMutations(["deleteTask", "createComment", "deleteComment"]),
     nameComment(e) {
       this.commentText = e.target.value;
     },
     submit() {
+      if(this.commentText ===""){
+        return
+      }
+      this.createComment({
+        id: uuidv4(),
+        parentId: this.id,
+        text: this.commentText,
+      })
+      this.commentText = "";
+      this.commentButtonOpen = false;
+
       //
     },
     commentOpen() {
       this.commentButtonOpen = !this.commentButtonOpen;
     },
+    deleteTaskBtn(e){
+      console.log(e.target.id)
+      this.deleteTask({
+        id: e.target.id
+      })
+    },
+    deleteCommentBtn(e){
+      this.deleteComment({
+        id: e.target.id,
+      })
+    }
   },
+  directives: {
+  focus: {
+    
+    inserted: function (el) {
+      el.focus()
+    }
+  }
+},
 };
 </script>
 <style>
@@ -137,5 +165,22 @@ export default {
   display: flex;
   flex-direction: column;
   padding: 10px;
+}
+.delete-button {
+  height: 22px;
+  width: 22px;
+  border: 1px solid;
+  background-color: rgb(7, 26, 194);
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.comment {
+  border: 2px solid;
+
+  overflow: hidden;
+
+  border: 1px solid;
+  background-color: white;
 }
 </style>

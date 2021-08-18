@@ -2,10 +2,11 @@
   <div class="column">
     <div class="title">
       {{ title }}
-      <button class="delete-button" id="props.id" onClick="delButton">
+      <button class="delete-button" :id="id" @click="delColumn">
         X
       </button>
     </div>
+    
 
     <button v-if="!setAddButtonOpen" @click="setAddButtonOpen = true">AddButton</button>
 
@@ -15,18 +16,36 @@
       :id="id"
       @submit.prevent="submit"
     >
-      <input placeholder="Имя задачи" @change="setName" />
+      <input v-focus placeholder="Имя задачи" @change="setName" />
       <input placeholder="Описание задачи" @change="setDescription" />
       <input placeholder="Исполнитель" @change="setExecutor" />
       <input placeholder="Срок исполнения" @change="setDate" />
-      <button :id="id" >create</button>
+      <button >create</button>
+    
     </form>
+
+      <div v-for="i in showTasks" v-bind:key="i.id">
+        <div v-if="i.parentId===id">
+        <ToDoTask :key="i.id" v-bind:title="i.name" v-bind:description="i.description" v-bind:executor="i.executor" v-bind:date="i.date" v-bind:id="i.id"/>
+        </div>
+
+      </div>
+   
+
   </div>
 </template>
 
 <script>
+import {mapMutations} from "vuex";
+import { v4 as uuidv4} from "uuid";
+import ToDoTask from "./TodoTask.vue"
+
 export default {
   name: "Column",
+  components: {
+    ToDoTask,
+    
+  },
   props: {
     title: {
       type: String,
@@ -38,6 +57,7 @@ export default {
       
       required: true,
     },
+    
   },
   data() {
     return {
@@ -50,6 +70,7 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(['deleteColumn', "createTask"]),
     setName(e) {
       this.name = e.target.value;
     },
@@ -64,19 +85,53 @@ export default {
         this.date = e.target.value;
 
     },
-    submit(e) {
-        let obj = {
+    delColumn(e){
+      console.log("id",e.target.id)
+      this.deleteColumn({
+        id: e.target.id
+      })
+
+      
+    },
+    submit() {
+      if(this.name ===""){
+        return
+      }
+      this.createTask({
+            id: uuidv4(),
+            parentId: this.id,
             name: this.name,
             description: this.description,
             executor: this.executor,
             date: this.date,
-        }
-        console.log(obj, e.target.id)
+      })
+        
+        this.name = "";
+        this.description ="";
+        this.executor ="";
+        this.date ="";
         this.setAddButtonOpen = false;
       //
     },
-  },
-};
+    
+    },
+    computed:{
+      showTasks(){
+      return this.$store.getters.showTasks
+    },
+    
+ 
+},
+  directives: {
+  focus: {
+    
+    inserted: function (el) {
+      el.focus()
+    }
+  }
+},
+}
+
 </script>
 <style>
 .column {

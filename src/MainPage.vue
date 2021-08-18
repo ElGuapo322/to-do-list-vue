@@ -1,8 +1,8 @@
 <template>
   <div class="main">
-    <div v-for="i in columns" :key="i.id">
+    <div v-for="i in showColumns" :key="i.id">
       <Column v-bind:id="i.id" v-bind:title="i.title"/>
-      <!-- <Column/> -->
+      
     </div> 
 
     <button v-if="!setAddColumnOpen" @click="setAddColumnOpen = true">
@@ -10,8 +10,8 @@
     </button>
 
     <div v-else class="newColumn">
-      <form onSubmit="{addColumn}">
-        <input autoFocus @change="colNameMethod" />
+      <form @submit.prevent="addColumn">
+        <input v-focus @change="colNameMethod" />
         <button type="submit">Добавить</button>
       </form>
     </div>
@@ -21,7 +21,8 @@
 
 <script>
 import { v4 as uuidv4 } from "uuid";
-import Column from "./components/Column.vue"
+import Column from "./components/Column.vue";
+import {mapMutations} from "vuex"
 
 export default {
   name: "MainPage",
@@ -36,38 +37,47 @@ export default {
   }
   },
   methods: {
+    methods: {
+    focusInput() {
+      this.$refs.focusMe.focus();
+    }
+  },
+  ...mapMutations(['createColumn']),
+  addColumn(){
+    if(this.colName ===""){
+     return
+    }
+    this.createColumn({
+    id: uuidv4(),
+    title: this.colName
+  }
+  
+    )
+    this.colName ="";
+    this.setAddColumnOpen = false;
+  },
     addColumnOpen() {
       this.setAddColumnOpen = true;
+      this.focusInput
     },
     colNameMethod(e){
+      this.$refs.focusMe.focus();
+    
         this.colName = e.target.value;
     }
   },
+  directives: {
+  focus: {
+    
+    inserted: function (el) {
+      el.focus()
+    }
+  }
+},
   computed: {
-    columns() {
-      const column = [
-        {
-          id: uuidv4(),
-          title: "Сделать",
-        },
-        {
-          id: uuidv4(),
-          title: "В работе",
-        },
-        {
-          id: uuidv4(),
-          title: "Сделано",
-        },
-      ];
-      return column;
-    },
-    tasks(){
-        const task =[];
-        return task;
-    },
-    comments(){
-        const comment=[];
-        return comment;
+    
+    showColumns(){
+      return this.$store.getters.showColumns
     }
   },
 };
