@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="task" :id="id">
+  <div :data-index="index" @dragenter.prevent="taskDrop" :draggable="true" @dragstart="dragStart" @dragend="dragEnd" class="task" :id="id">
       <div className="task-title">
         <div>{{ title }}</div>
 
@@ -42,6 +42,7 @@
         add comment
       </button>
     </div>
+    
   </div>
   </div>
 </template>
@@ -80,22 +81,66 @@ export default {
       type: String,
       
       required: true,
+    },
+    index:{
+     
+     default: "0",
     }
   },
   data() {
     return {
       commentButtonOpen: false,
       commentText: "",
+      dragStartId:"",
+      taskDropIndex:0,
+      taskStartIndex:0,
+      // taskIndex:{
+      //   end:0,
+      //   start:0
+      // }
     };
   },
   computed: {
     
     showComments(){
       return this.$store.getters.showComments
-    }
+    },
+    // taskIndex(){
+    //   let index=0;
+    //   return index
+    // }
+    
   },
   methods: {
-    ...mapMutations(["deleteTask", "createComment", "deleteComment"]),
+    
+    taskDrop(e){
+      console.log(e.currentTarget.dataset.index);
+      this.taskDropIndex = e.currentTarget.dataset.index
+      //this.taskIndex += e.currentTarget.dataset.index
+      // console.log("уронил",this.taskDropIndex);
+      
+
+    },
+    
+    dragEnd(e){
+      //eslint-disable-next-line
+      // console.log("уронил",this.taskDropIndex);
+    
+       this.handleDrag({
+         start: this.taskStartIndex,
+         end: this.taskDropIndex,
+       });
+      // this.handleDrag(this.taskIndex);
+    },
+    dragStart(e){
+    //  console.log("стартовый Айди",this.index)
+     this.taskStartIndex = e.currentTarget.dataset.index
+      // console.log("взял",e.currentTarget.dataset.index)
+
+     this.takeElemId(e.currentTarget.id);
+    },
+    
+    ...mapMutations(["deleteTask", "createComment", "deleteComment", "takeElemId", "handleDrag"]),
     nameComment(e) {
       this.commentText = e.target.value;
     },
@@ -127,6 +172,11 @@ export default {
         id: e.target.id,
       })
     }
+  },
+  watch:{
+taskDropIndex(val){
+  console.log(val)
+}
   },
   directives: {
   focus: {

@@ -1,5 +1,5 @@
 <template>
-  <div class="column">
+  <div class="column" @drop.prevent="drop" @dragstart="dragStart" @dragover.prevent :id="id">
     <div class="title">
       {{ title }}
       <button class="delete-button" :id="id" @click="delColumn">
@@ -23,14 +23,16 @@
       <button >create</button>
     
     </form>
-
-      <div v-for="i in showTasks" v-bind:key="i.id">
+    
+      <div v-for="(i, index) in showTasks" v-bind:key="i.index">
         <div v-if="i.parentId===id">
-        <ToDoTask :key="i.id" v-bind:title="i.name" v-bind:description="i.description" v-bind:executor="i.executor" v-bind:date="i.date" v-bind:id="i.id"/>
+          
+        <ToDoTask @mousedown="mouse" :index="index" :dropId="dropId"    :key="i.id" v-bind:title="i.name" v-bind:description="i.description" v-bind:executor="i.executor" v-bind:date="i.date" v-bind:id="i.id"/>
+          
         </div>
-
+      
       </div>
-   
+
 
   </div>
 </template>
@@ -39,11 +41,13 @@
 import {mapMutations} from "vuex";
 import { v4 as uuidv4} from "uuid";
 import ToDoTask from "./TodoTask.vue"
+//import { Drag, Drop } from "vue-easy-dnd";
 
 export default {
   name: "Column",
   components: {
     ToDoTask,
+   
     
   },
   props: {
@@ -66,11 +70,30 @@ export default {
       description:"",
       executor:"",
       date:"",
+      index:"",
+      dropId:"",
 
     };
   },
   methods: {
-    ...mapMutations(['deleteColumn', "createTask"]),
+    mouse(e){
+      this.index = e.target.index
+      console.log(e.target.key)
+
+    },
+    drop(e){
+      console.log("Айди сброса",e.currentTarget.key)
+      this.takeDropId(e.currentTarget.id)
+      
+    },
+    
+    dragStart(){
+      // this.dropId = e.target.id
+      // console.log("dropId",this.dropId)
+
+    },
+   
+    ...mapMutations(['deleteColumn', "createTask", "takeDropId"]),
     setName(e) {
       this.name = e.target.value;
     },

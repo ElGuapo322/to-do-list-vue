@@ -1,7 +1,9 @@
 <template>
+
   <div class="main">
-    <div v-for="i in showColumns" :key="i.id">
-      <Column v-bind:id="i.id" v-bind:title="i.title"/>
+    <div v-for="(i, index) in showColumns" :key="i.id">
+     
+      <Column  v-bind:id="i.id" v-bind:title="i.title" :key="index"/>
       
     </div> 
 
@@ -17,17 +19,20 @@
     </div>
     
   </div>
+
 </template>
 
 <script>
 import { v4 as uuidv4 } from "uuid";
 import Column from "./components/Column.vue";
 import {mapMutations} from "vuex"
+//import { Drop } from "vue-easy-dnd";
 
 export default {
   name: "MainPage",
   components: {
     Column,
+    
     
   },
   data(){ 
@@ -37,11 +42,7 @@ export default {
   }
   },
   methods: {
-    methods: {
-    focusInput() {
-      this.$refs.focusMe.focus();
-    }
-  },
+     
   ...mapMutations(['createColumn']),
   addColumn(){
     if(this.colName ===""){
@@ -61,7 +62,7 @@ export default {
       this.focusInput
     },
     colNameMethod(e){
-      this.$refs.focusMe.focus();
+      
     
         this.colName = e.target.value;
     }

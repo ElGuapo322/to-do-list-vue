@@ -18,7 +18,9 @@ export default{
               },
         ],
         tasks:[],
-        comments:[]
+        comments:[],
+        dropId:"",
+        elId:"",
     },
   mutations: {
       createColumn(state, newColumn){
@@ -49,7 +51,28 @@ export default{
       deleteComment(state, id){
           let newComments = state.comments.filter((i)=> i.id !== id.id)
           state.comments = newComments
+      },
+      takeDropId(state, id){
+        state.dropId = id;
+      },
+      takeElemId(state,id){
+        state.elId = id
+      },
+      handleDrag(state, payload){
+        if(state.elId ==="" && state.dropId ===""){
+          return
+        }
+        state.tasks.map((i)=> {
+          if(i.id ===state.elId){
+            i.parentId = state.dropId
+          }
+        });
+        const taskCopy = state.tasks[parseInt(payload.start)];
+        console.log("конец",payload.end)
+        state.tasks.splice(parseInt(payload.start), 1);
+        state.tasks.splice(payload.end, 0, taskCopy)
       }
+      
   },
   actions: {},
   getters:{

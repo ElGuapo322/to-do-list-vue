@@ -11,6 +11,7 @@
     "core-js": "^3.6.5",
     "uuidv4": "^6.2.11",
     "vue": "^2.6.11",
+    "vue-easy-dnd": "^1.14.0",
     "vuex": "^3.4.0"
   },
   "devDependencies": {
