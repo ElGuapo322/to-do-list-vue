@@ -26,14 +26,12 @@
 import { v4 as uuidv4 } from "uuid";
 import Column from "./components/Column.vue";
 import {mapMutations} from "vuex"
-//import { Drop } from "vue-easy-dnd";
+
 
 export default {
   name: "MainPage",
   components: {
     Column,
-    
-    
   },
   data(){ 
       return{
@@ -42,7 +40,6 @@ export default {
   }
   },
   methods: {
-     
   ...mapMutations(['createColumn']),
   addColumn(){
     if(this.colName ===""){
@@ -52,7 +49,6 @@ export default {
     id: uuidv4(),
     title: this.colName
   }
-  
     )
     this.colName ="";
     this.setAddColumnOpen = false;

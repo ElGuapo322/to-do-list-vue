@@ -58,7 +58,7 @@ export default{
       takeElemId(state,id){
         state.elId = id
       },
-      handleDrag(state, payload){
+      handleDrag(state){
         if(state.elId ==="" && state.dropId ===""){
           return
         }
@@ -67,8 +67,13 @@ export default{
             i.parentId = state.dropId
           }
         });
+        // const taskCopy = state.tasks[parseInt(payload.start)];
+        // console.log("конец",payload.end)
+        // state.tasks.splice(parseInt(payload.start), 1);
+        // state.tasks.splice(payload.end, 0, taskCopy)
+      },
+      changeIndex(state, payload){
         const taskCopy = state.tasks[parseInt(payload.start)];
-        console.log("конец",payload.end)
         state.tasks.splice(parseInt(payload.start), 1);
         state.tasks.splice(payload.end, 0, taskCopy)
       }

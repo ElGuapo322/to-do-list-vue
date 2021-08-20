@@ -1,6 +1,10 @@
 <template>
   <div>
-  <div :data-index="index" @dragenter.prevent="taskDrop" :draggable="true" @dragstart="dragStart" @dragend="dragEnd" class="task" :id="id">
+   <div :data-index="index" @dragover.prevent="taskDrop" 
+   :droppable="true" :draggable="true" @dragstart="dragStart" @drop="drop" @dragend="dragEnd" 
+   
+   class="task" :id="id">
+
       <div className="task-title">
         <div>{{ title }}</div>
 
@@ -18,7 +22,6 @@
           <div>{{ date }}</div>
         </div>
 
-        <!-- {comments.map((i) => props.id === i.parentId ? ( -->
         <div v-for="i in showComments" :key="i.id">
           <div v-if="id===i.parentId">
       <div class="comment">
@@ -83,7 +86,6 @@ export default {
       required: true,
     },
     index:{
-     
      default: "0",
     }
   },
@@ -91,56 +93,43 @@ export default {
     return {
       commentButtonOpen: false,
       commentText: "",
-      dragStartId:"",
-      taskDropIndex:0,
-      taskStartIndex:0,
-      // taskIndex:{
-      //   end:0,
-      //   start:0
-      // }
     };
   },
   computed: {
-    
     showComments(){
       return this.$store.getters.showComments
     },
-    // taskIndex(){
-    //   let index=0;
-    //   return index
-    // }
-    
   },
   methods: {
-    
+    drop(e) {
+      let data = e.dataTransfer.getData("index");
+      this.changeIndex({
+        start: data,
+        end: e.currentTarget.dataset.index,
+      });
+       console.log("data",data)
+    },
     taskDrop(e){
       console.log(e.currentTarget.dataset.index);
       this.taskDropIndex = e.currentTarget.dataset.index
-      //this.taskIndex += e.currentTarget.dataset.index
-      // console.log("уронил",this.taskDropIndex);
       
-
+      e.dataTransfer.setData("items", e.currentTarget.dataset.index)
     },
     
     dragEnd(e){
-      //eslint-disable-next-line
-      // console.log("уронил",this.taskDropIndex);
-    
-       this.handleDrag({
-         start: this.taskStartIndex,
-         end: this.taskDropIndex,
-       });
-      // this.handleDrag(this.taskIndex);
+      this.taskDropIndex = e.target.dataset.index
+        this.handleDrag();  
     },
     dragStart(e){
-    //  console.log("стартовый Айди",this.index)
      this.taskStartIndex = e.currentTarget.dataset.index
-      // console.log("взял",e.currentTarget.dataset.index)
-
+       console.log("взял",e.currentTarget.dataset.index)
+       let elem = document.getElementById(e.currentTarget.id);
+       e.dataTransfer.setData("index" , elem.dataset.index )
+       console.log(e.dataTransfer)
      this.takeElemId(e.currentTarget.id);
     },
     
-    ...mapMutations(["deleteTask", "createComment", "deleteComment", "takeElemId", "handleDrag"]),
+    ...mapMutations(["deleteTask", "createComment", "deleteComment", "takeElemId", "handleDrag", "changeIndex"]),
     nameComment(e) {
       this.commentText = e.target.value;
     },
@@ -155,8 +144,6 @@ export default {
       })
       this.commentText = "";
       this.commentButtonOpen = false;
-
-      //
     },
     commentOpen() {
       this.commentButtonOpen = !this.commentButtonOpen;

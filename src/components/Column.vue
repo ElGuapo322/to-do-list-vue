@@ -1,5 +1,5 @@
 <template>
-  <div class="column" @drop.prevent="drop" @dragstart="dragStart" @dragover.prevent :id="id">
+  <div class="column" @drop.prevent="drop"  @dragover.prevent :id="id">
     <div class="title">
       {{ title }}
       <button class="delete-button" :id="id" @click="delColumn">
@@ -27,7 +27,7 @@
       <div v-for="(i, index) in showTasks" v-bind:key="i.index">
         <div v-if="i.parentId===id">
           
-        <ToDoTask @mousedown="mouse" :index="index" :dropId="dropId"    :key="i.id" v-bind:title="i.name" v-bind:description="i.description" v-bind:executor="i.executor" v-bind:date="i.date" v-bind:id="i.id"/>
+        <ToDoTask :index="index" :dropId="dropId"    :key="i.id" v-bind:title="i.name" v-bind:description="i.description" v-bind:executor="i.executor" v-bind:date="i.date" v-bind:id="i.id"/>
           
         </div>
       
@@ -41,14 +41,12 @@
 import {mapMutations} from "vuex";
 import { v4 as uuidv4} from "uuid";
 import ToDoTask from "./TodoTask.vue"
-//import { Drag, Drop } from "vue-easy-dnd";
+
 
 export default {
   name: "Column",
   components: {
     ToDoTask,
-   
-    
   },
   props: {
     title: {
@@ -61,7 +59,6 @@ export default {
       
       required: true,
     },
-    
   },
   data() {
     return {
@@ -76,23 +73,12 @@ export default {
     };
   },
   methods: {
-    mouse(e){
-      this.index = e.target.index
-      console.log(e.target.key)
-
-    },
+    
     drop(e){
       console.log("Айди сброса",e.currentTarget.key)
       this.takeDropId(e.currentTarget.id)
       
     },
-    
-    dragStart(){
-      // this.dropId = e.target.id
-      // console.log("dropId",this.dropId)
-
-    },
-   
     ...mapMutations(['deleteColumn', "createTask", "takeDropId"]),
     setName(e) {
       this.name = e.target.value;
@@ -113,8 +99,6 @@ export default {
       this.deleteColumn({
         id: e.target.id
       })
-
-      
     },
     submit() {
       if(this.name ===""){
@@ -134,7 +118,7 @@ export default {
         this.executor ="";
         this.date ="";
         this.setAddButtonOpen = false;
-      //
+      
     },
     
     },
@@ -142,8 +126,6 @@ export default {
       showTasks(){
       return this.$store.getters.showTasks
     },
-    
- 
 },
   directives: {
   focus: {
