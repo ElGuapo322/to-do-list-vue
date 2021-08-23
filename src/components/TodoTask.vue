@@ -1,20 +1,20 @@
 <template>
   <div>
-   <div :data-index="index" @dragover.prevent="taskDrop" 
-   :droppable="true" :draggable="true" @dragstart="dragStart" @drop="drop" @dragend="dragEnd" 
-   
-   class="task" :id="id">
-
+    <div
+      :data-index="index"
+      @dragover.prevent="taskDrop"
+      :droppable="true"
+      :draggable="true"
+      @dragstart="dragStart"
+      @drop="drop"
+      @dragend="dragEnd"
+      class="task"
+      :id="id"
+    >
       <div className="task-title">
         <div>{{ title }}</div>
 
-        <button
-          class="delete-button"
-          @click="deleteTaskBtn"
-          :id="id"
-        >
-          X
-        </button>
+        <button class="delete-button" @click="deleteTaskBtn" :id="id">X</button>
 
         <div class="task-info">
           <div>{{ description }}</div>
@@ -22,43 +22,38 @@
           <div>{{ date }}</div>
         </div>
 
-        <div v-for="i in showComments" :key="i.id">
-          <div v-if="id===i.parentId">
-      <div class="comment">
-        <div>{{i.text}}</div>
-        <button
-          class="delete-button"
-          @click="deleteCommentBtn"
-          :id="i.id"
-        >
-          X
-        </button>
-      </div>
+        <!-- {comments.map((i) => props.id === i.parentId ? ( -->
+        <div v-for="i in comments" :key="i.id">
+          <div v-if="id === i.parentId">
+            <div class="comment">
+              <div>{{ i.text }}</div>
+              <button
+                class="delete-button"
+                @click="deleteCommentBtn"
+                :id="i.id"
+              >
+                X
+              </button>
+            </div>
           </div>
         </div>
-      <form v-if="commentButtonOpen" @submit.prevent="submit">
-        <input v-focus @change="nameComment" />
-        <button type="submit">add comment</button>
-      </form>
+        <form v-if="commentButtonOpen" @submit.prevent="submit">
+          <input v-focus @change="nameComment" />
+          <button type="submit">add comment</button>
+        </form>
 
-      <button v-on:click="commentOpen" class="comment-button">
-        add comment
-      </button>
+        <button v-on:click="commentOpen" class="comment-button">
+          add comment
+        </button>
+      </div>
     </div>
-    
-  </div>
   </div>
 </template>
 
 <script>
-
-
-import { v4 as uuidv4} from "uuid";
-import {mapMutations} from "vuex"
-
+import { v4 as uuidv4 } from "uuid";
 export default {
   name: "TodoTask",
-  
   props: {
     title: {
       type: String,
@@ -80,99 +75,94 @@ export default {
       default: "00:00",
       required: true,
     },
-    id:{
+    id: {
       type: String,
-      
+
       required: true,
     },
-    index:{
-     default: "0",
-    }
+    comments: {
+      required: false,
+    },
+    index: {
+      required: false,
+    },
   },
   data() {
     return {
       commentButtonOpen: false,
-      commentText: "",
+      commentText: "text",
     };
   },
-  computed: {
-    showComments(){
-      return this.$store.getters.showComments
-    },
-  },
+
   methods: {
     drop(e) {
       let data = e.dataTransfer.getData("index");
-      this.changeIndex({
+      this.$emit("change-index", {
         start: data,
         end: e.currentTarget.dataset.index,
       });
-       console.log("data",data)
+      console.log("data", data);
     },
-    taskDrop(e){
+    taskDrop(e) {
       console.log(e.currentTarget.dataset.index);
-      this.taskDropIndex = e.currentTarget.dataset.index
-      
-      e.dataTransfer.setData("items", e.currentTarget.dataset.index)
+      this.taskDropIndex = e.currentTarget.dataset.index;
+
+      e.dataTransfer.setData("items", e.currentTarget.dataset.index);
     },
-    
-    dragEnd(e){
-      this.taskDropIndex = e.target.dataset.index
-        this.handleDrag();  
+
+    dragEnd(e) {
+      this.taskDropIndex = e.target.dataset.index;
+      this.$emit("handle-drag");
     },
-    dragStart(e){
-     this.taskStartIndex = e.currentTarget.dataset.index
-       console.log("взял",e.currentTarget.dataset.index)
-       let elem = document.getElementById(e.currentTarget.id);
-       e.dataTransfer.setData("index" , elem.dataset.index )
-       console.log(e.dataTransfer)
-     this.takeElemId(e.currentTarget.id);
-    },
-    
-    ...mapMutations(["deleteTask", "createComment", "deleteComment", "takeElemId", "handleDrag", "changeIndex"]),
-    nameComment(e) {
-      this.commentText = e.target.value;
+    dragStart(e) {
+      this.taskStartIndex = e.currentTarget.dataset.index;
+      console.log("взял", e.currentTarget.dataset.index);
+      let elem = document.getElementById(e.currentTarget.id);
+      e.dataTransfer.setData("index", elem.dataset.index);
+      console.log(e.dataTransfer);
+      this.$emit("take-start-id", e.currentTarget.id);
     },
     submit() {
-      if(this.commentText ===""){
-        return
+      if (this.commentText === "") {
+        return;
       }
-      this.createComment({
+      this.$emit("create-comment", {
         id: uuidv4(),
         parentId: this.id,
         text: this.commentText,
-      })
+      });
       this.commentText = "";
       this.commentButtonOpen = false;
+      console.log(this.comments);
+
+      //
     },
     commentOpen() {
+      console.log("kek");
       this.commentButtonOpen = !this.commentButtonOpen;
     },
-    deleteTaskBtn(e){
-      console.log(e.target.id)
-      this.deleteTask({
-        id: e.target.id
-      })
+    nameComment(e) {
+      this.commentText = e.target.value;
     },
-    deleteCommentBtn(e){
-      this.deleteComment({
+    deleteTaskBtn(e) {
+      console.log(e.target.id);
+      this.$emit("delete-task", {
         id: e.target.id,
-      })
-    }
-  },
-  watch:{
-taskDropIndex(val){
-  console.log(val)
-}
+      });
+    },
+    deleteCommentBtn(e) {
+      this.$emit("delete-comment", {
+        id: e.target.id,
+      });
+    },
   },
   directives: {
-  focus: {
-    
-    inserted: function (el) {
-      el.focus()
-    }
-  }
-},
+    focus: {
+      inserted: function (el) {
+        el.focus();
+      },
+    },
+  },
 };
 </script>
 <style>

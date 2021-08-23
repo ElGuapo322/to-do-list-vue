@@ -1,52 +1,60 @@
 <template>
-  <div class="column" @drop.prevent="drop"  @dragover.prevent :id="id">
+  <div
+    class="column"
+    @drop.prevent="drop"
+    @dragstart="dragStart"
+    @dragover.prevent
+    :id="id"
+  >
     <div class="title">
       {{ title }}
-      <button class="delete-button" :id="id" @click="delColumn">
-        X
-      </button>
+      <button class="delete-button" :id="id" @click="delColumn">X</button>
     </div>
-    
 
-    <button v-if="!setAddButtonOpen" @click="setAddButtonOpen = true">AddButton</button>
+    <button v-if="!setAddButtonOpen" @click="setAddButtonOpen = true">
+      AddButton
+    </button>
 
-    <form
-    class="task-form"
-      v-else
-      :id="id"
-      @submit.prevent="submit"
-    >
+    <form class="task-form" v-else :id="id" @submit.prevent="submit">
       <input v-focus placeholder="Имя задачи" @change="setName" />
       <input placeholder="Описание задачи" @change="setDescription" />
       <input placeholder="Исполнитель" @change="setExecutor" />
       <input placeholder="Срок исполнения" @change="setDate" />
-      <button >create</button>
-    
+      <button>create</button>
     </form>
-    
-      <div v-for="(i, index) in showTasks" v-bind:key="i.index">
-        <div v-if="i.parentId===id">
-          
-        <ToDoTask :index="index" :dropId="dropId"    :key="i.id" v-bind:title="i.name" v-bind:description="i.description" v-bind:executor="i.executor" v-bind:date="i.date" v-bind:id="i.id"/>
-          
-        </div>
-      
+
+    <div v-for="(i, index) in tasks" v-bind:key="i.index">
+      <div v-if="i.parentId === id">
+        <TodoTask
+          @change-index="changeIndex"
+          @handle-drag="handleDrag"
+          @take-start-id="takeStartId"
+          @delete-comment="delComment"
+          @create-comment="createComment"
+          :comments="comments"
+          @delete-task="deleteTask"
+          :index="index"
+          :dropId="dropId"
+          :key="i.id"
+          v-bind:title="i.name"
+          v-bind:description="i.description"
+          v-bind:executor="i.executor"
+          v-bind:date="i.date"
+          v-bind:id="i.id"
+        />
       </div>
-
-
+    </div>
   </div>
 </template>
 
 <script>
-import {mapMutations} from "vuex";
-import { v4 as uuidv4} from "uuid";
-import ToDoTask from "./TodoTask.vue"
-
+import { v4 as uuidv4 } from "uuid";
+import TodoTask from "./TodoTask";
 
 export default {
   name: "Column",
   components: {
-    ToDoTask,
+    TodoTask,
   },
   props: {
     title: {
@@ -56,87 +64,101 @@ export default {
     },
     id: {
       type: String,
-      
+
       required: true,
+    },
+    tasks: {
+      required: false,
+    },
+    comments: {
+      required: false,
     },
   },
   data() {
     return {
       setAddButtonOpen: false,
       name: "",
-      description:"",
-      executor:"",
-      date:"",
-      index:"",
-      dropId:"",
-
+      index: "",
+      dropId: "",
     };
   },
   methods: {
-    
-    drop(e){
-      console.log("Айди сброса",e.currentTarget.key)
-      this.takeDropId(e.currentTarget.id)
-      
+    changeIndex(data) {
+      this.$emit("change-index", data);
     },
-    ...mapMutations(['deleteColumn', "createTask", "takeDropId"]),
+    handleDrag() {
+      this.$emit("handle-drag");
+    },
+    drop(e) {
+      console.log("Айди сброса", e.currentTarget.key);
+      this.$emit("take-drop-id", e.currentTarget.id);
+    },
+    takeStartId(data) {
+      this.$emit("take-start-id", data);
+    },
+
+    dragStart() {
+      // this.dropId = e.target.id
+      // console.log("dropId",this.dropId)
+    },
+
     setName(e) {
       this.name = e.target.value;
     },
-    setDescription(e){
+    setDescription(e) {
       this.description = e.target.value;
     },
-    setExecutor(e){
-        this.executor = e.target.value;
-
+    setExecutor(e) {
+      this.executor = e.target.value;
     },
-    setDate(e){
-        this.date = e.target.value;
-
+    setDate(e) {
+      this.date = e.target.value;
     },
-    delColumn(e){
-      console.log("id",e.target.id)
-      this.deleteColumn({
-        id: e.target.id
-      })
+    delColumn(e) {
+      //console.log();
+      this.$emit("delete-column", {
+        id: e.target.id,
+      });
+    },
+    deleteTask(data) {
+      this.$emit("delete-task", data);
     },
     submit() {
-      if(this.name ===""){
-        return
+      if (this.name === "") {
+        return;
       }
-      this.createTask({
-            id: uuidv4(),
-            parentId: this.id,
-            name: this.name,
-            description: this.description,
-            executor: this.executor,
-            date: this.date,
-      })
-        
-        this.name = "";
-        this.description ="";
-        this.executor ="";
-        this.date ="";
-        this.setAddButtonOpen = false;
-      
-    },
-    
-    },
-    computed:{
-      showTasks(){
-      return this.$store.getters.showTasks
-    },
-},
-  directives: {
-  focus: {
-    
-    inserted: function (el) {
-      el.focus()
-    }
-  }
-},
-}
+      this.$emit("create-task", {
+        id: uuidv4(),
+        parentId: this.id,
+        name: this.name,
+        description: this.description,
+        executor: this.executor,
+        date: this.date,
+      });
 
+      this.name = "";
+      this.description = "";
+      this.executor = "";
+      this.date = "";
+      this.setAddButtonOpen = false;
+      //
+    },
+    createComment(data) {
+      this.$emit("create-comment", data);
+      console.log("в колоннах", this.comments);
+    },
+    delComment(data) {
+      this.$emit("delete-comment", data);
+    },
+  },
+  directives: {
+    focus: {
+      inserted: function (el) {
+        el.focus();
+      },
+    },
+  },
+};
 </script>
 <style>
 .column {
