@@ -22,7 +22,7 @@
           <div>{{ date }}</div>
         </div>
 
-        <!-- {comments.map((i) => props.id === i.parentId ? ( -->
+        
         <div v-for="i in comments" :key="i.id">
           <div v-if="id === i.parentId">
             <div class="comment">
@@ -57,22 +57,22 @@ export default {
   props: {
     title: {
       type: String,
-      default: "name",
+      
       required: true,
     },
     description: {
       type: String,
-      default: "описание",
+      
       required: true,
     },
     executor: {
       type: String,
-      default: "исполнитель",
+      
       required: true,
     },
     date: {
       type: String,
-      default: "00:00",
+      
       required: true,
     },
     id: {

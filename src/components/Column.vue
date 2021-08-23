@@ -2,7 +2,7 @@
   <div
     class="column"
     @drop.prevent="drop"
-    @dragstart="dragStart"
+    
     @dragover.prevent
     :id="id"
   >
@@ -97,11 +97,6 @@ export default {
       this.$emit("take-start-id", data);
     },
 
-    dragStart() {
-      // this.dropId = e.target.id
-      // console.log("dropId",this.dropId)
-    },
-
     setName(e) {
       this.name = e.target.value;
     },
@@ -170,6 +165,7 @@ export default {
   -moz-box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
   box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
   background-color: rgba(231, 247, 248, 0.911);
+  padding-bottom:100px;
 }
 .title {
   border-bottom: 1px solid;

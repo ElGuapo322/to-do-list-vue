@@ -101,17 +101,7 @@ export default {
       this.setAddColumnOpen = true;
     },
     delColumn(data) {
-      // this.columns.map((i) => {
-      //   if (i.id === data.id) {
-      //     console.log(i.id);
-      //     const index = this.columns.indexOf(i);
-      //     console.log(index);
-      //     this.columns.splice(index, 1);
-      //   }
-      // });
       this.columns = this.columns.filter((column) => column.id !== data.id);
-      //this.columns.filter((i) => i.id !== data.id);
-      // console.log(this.columns, data.id);
     },
     deleteTask(data) {
       console.log(data);
